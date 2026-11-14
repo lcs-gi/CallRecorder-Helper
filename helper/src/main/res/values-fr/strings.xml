@@ -1,0 +1,44 @@
+<resources>
+    <string name="action_allow">Autoriser</string>
+    <string name="action_open">Ouvrir les réglages</string>
+    <string name="action_install">Télécharger sur Google Play</string>
+    <string name="action_open_app">Ouvrir CallRecorder</string>
+
+    <string name="status_ready_title">Prêt</string>
+    <string name="status_ready_text">Vos appels sont enregistrés et envoyés à CallRecorder</string>
+    <string name="status_setup_title">Configuration requise</string>
+    <string name="status_setup_text">Terminez les étapes ci-dessous pour enregistrer vos appels</string>
+    <plurals name="status_pending">
+        <item quantity="one">%1$d enregistrement en attente de l’application CallRecorder</item>
+        <item quantity="other">%1$d enregistrements en attente de l’application CallRecorder</item>
+    </plurals>
+
+    <string name="setup_perm_title">Autorisations</string>
+    <string name="setup_perm_text">Micro et téléphone pour enregistrer les appels. Journal d’appels et contacts pour savoir avec qui vous avez parlé.</string>
+    <string name="setup_a11y_title">Service d’enregistrement</string>
+    <string name="setup_a11y_text">Depuis Android 10, seul un service d’accessibilité peut utiliser le micro pendant un appel. Dans Accessibilité → Applications installées, ouvrez « CallRecorder Helper » et activez-le. Il ne lit rien à l’écran.</string>
+    <string name="setup_restricted_title">Option grisée ?</string>
+    <string name="setup_restricted_text">Pour une application installée hors Play Store, ouvrez la fiche de l’application, touchez ⋮ en haut, puis « Autoriser les paramètres restreints ».</string>
+    <string name="setup_restricted_action">Ouvrir la fiche de l’application</string>
+    <string name="setup_battery_title">Batterie</string>
+    <string name="setup_battery_text">Empêche le système d’arrêter le service pour économiser la batterie (conseillé sur Samsung, Xiaomi, Huawei…).</string>
+    <string name="setup_optional">Facultatif</string>
+    <string name="setup_app_title">Application CallRecorder</string>
+    <string name="setup_app_text">Vos enregistrements s’écoutent, se recherchent et se classent dans l’application CallRecorder.</string>
+    <string name="privacy_text">Le Helper communique uniquement avec l’application CallRecorder de ce téléphone. Il n’a pas accès à Internet : vos appels ne quittent jamais votre téléphone.</string>
+
+    <string name="a11y_label">CallRecorder Helper – enregistrement des appels</string>
+    <string name="a11y_summary">Enregistre vos appels automatiquement</string>
+    <string name="a11y_description">Permet à CallRecorder Helper d’utiliser le micro pendant les appels (obligatoire depuis Android 10). Ce service ne lit aucun contenu de l’écran.</string>
+
+    <string name="channel_live">Enregistrement en cours</string>
+    <string name="channel_status">État</string>
+    <string name="notif_recording">Enregistrement de l’appel</string>
+    <string name="notif_recording_text">L’enregistrement s’arrêtera quand vous raccrocherez</string>
+    <string name="notif_error">Appel non enregistré</string>
+    <string name="notif_error_text">Le micro est indisponible. Vérifiez la configuration.</string>
+    <string name="notif_pending">Appel enregistré</string>
+    <string name="notif_pending_text">Installez ou ouvrez l’application CallRecorder pour l’écouter.</string>
+
+    <string name="file_prefix">Appel</string>
+</resources>

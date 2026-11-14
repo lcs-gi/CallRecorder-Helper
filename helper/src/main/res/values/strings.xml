@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name" translatable="false">CallRecorder Helper</string>
+
+    <string name="action_allow">Allow</string>
+    <string name="action_open">Open settings</string>
+    <string name="action_install">Get it on Google Play</string>
+    <string name="action_open_app">Open CallRecorder</string>
+
+    <string name="status_ready_title">Ready</string>
+    <string name="status_ready_text">Your calls are recorded and sent to CallRecorder</string>
+    <string name="status_setup_title">Setup required</string>
+    <string name="status_setup_text">Complete the steps below to record your calls</string>
+    <plurals name="status_pending">
+        <item quantity="one">%1$d recording waiting for the CallRecorder app</item>
+        <item quantity="other">%1$d recordings waiting for the CallRecorder app</item>
+    </plurals>
+
+    <string name="setup_perm_title">Permissions</string>
+    <string name="setup_perm_text">Microphone and phone to record calls. Call log and contacts to show who you talked to.</string>
+    <string name="setup_a11y_title">Recording service</string>
+    <string name="setup_a11y_text">Since Android 10, only an accessibility service can use the microphone during a call. In Accessibility → Installed apps, open “CallRecorder Helper” and turn it on. It reads nothing on your screen.</string>
+    <string name="setup_restricted_title">Option greyed out?</string>
+    <string name="setup_restricted_text">For apps installed outside the Play Store, open the app info, tap ⋮ in the top corner, then “Allow restricted settings”.</string>
+    <string name="setup_restricted_action">Open app info</string>
+    <string name="setup_battery_title">Battery</string>
+    <string name="setup_battery_text">Prevents the system from stopping the service to save battery (recommended on Samsung, Xiaomi, Huawei…).</string>
+    <string name="setup_optional">Optional</string>
+    <string name="setup_app_title">CallRecorder app</string>
+    <string name="setup_app_text">Your recordings are listened to, searched and organised in the CallRecorder app.</string>
+    <string name="privacy_text">The Helper only talks to the CallRecorder app on this phone. It has no internet access: your calls never leave your phone.</string>
+
+    <string name="a11y_label">CallRecorder Helper – call recording</string>
+    <string name="a11y_summary">Records your calls automatically</string>
+    <string name="a11y_description">Allows CallRecorder Helper to use the microphone during calls (required since Android 10). This service reads no screen content.</string>
+
+    <string name="channel_live">Recording in progress</string>
+    <string name="channel_status">Status</string>
+    <string name="notif_recording">Recording call</string>
+    <string name="notif_recording_text">The recording will stop when you hang up</string>
+    <string name="notif_error">Call not recorded</string>
+    <string name="notif_error_text">The microphone is unavailable. Check the setup.</string>
+    <string name="notif_pending">Call recorded</string>
+    <string name="notif_pending_text">Install or open the CallRecorder app to listen to it.</string>
+
+    <string name="file_prefix">Call</string>
+</resources>

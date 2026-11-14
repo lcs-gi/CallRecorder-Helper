@@ -1,0 +1,5 @@
+<resources>
+    <color name="bg">#FFF7F9FC</color>
+    <!-- Gris-bleu : distingue le Helper de l'application (bleu) sur l'écran d'accueil. -->
+    <color name="ic_bg">#FF37474F</color>
+</resources>

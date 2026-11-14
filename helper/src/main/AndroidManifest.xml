@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Enregistrement de l'audio pendant l'appel. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Détection du début et de la fin des appels. -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- Numéro et sens de l'appel (lus dans le journal d'appels une fois l'appel terminé). -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <!-- Nom du correspondant et filtre « contacts / numéros inconnus ». -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <!-- Haut-parleur pendant l'appel (option), pour que le micro capte le correspondant. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Garde le processeur éveillé pendant l'enregistrement, écran éteint. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Demande d'exclusion de l'optimisation de batterie (fiabilité du service). -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="true" />
+
+    <!-- Visibilité de l'application CallRecorder (Android 11+) : réglages, remise des enregistrements, ouverture. -->
+    <queries>
+        <package android:name="com.callrecorder.app" />
+    </queries>
+
+    <application
+        android:name=".HelperApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Helper"
+        tools:targetApi="36">
+
+        <activity
+            android:name=".HelperActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            Service d'accessibilité : depuis Android 10, seules certaines applications peuvent capter le micro
+            pendant un appel. Un service d'accessibilité actif lève cette restriction et garde le Helper
+            en vie pour détecter les appels. Il ne lit aucun contenu de l'écran.
+        -->
+        <service
+            android:name=".CallAccessibilityService"
+            android:exported="false"
+            android:label="@string/a11y_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service" />
+        </service>
+
+        <!-- Notification « Enregistrement en cours » pendant l'appel. -->
+        <service
+            android:name=".RecordingService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+    </application>
+</manifest>
