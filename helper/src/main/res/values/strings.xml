@@ -18,7 +18,7 @@
     <string name="setup_perm_title">Permissions</string>
     <string name="setup_perm_text">Microphone and phone to record calls. Call log and contacts to show who you talked to.</string>
     <string name="setup_a11y_title">Recording service</string>
-    <string name="setup_a11y_text">Since Android 10, only an accessibility service can use the microphone during a call. In Accessibility → Installed apps, open “CallRecorder Helper” and turn it on. It reads nothing on your screen.</string>
+    <string name="setup_a11y_text">Since Android 10, only an accessibility service can use the microphone during a call. In Accessibility → Installed apps, open “CallRecorder Helper” and turn it on. It reads nothing on your screen. Android will sometimes remind you that it has “full access to your device”: this is the standard message for any accessibility service.</string>
     <string name="setup_restricted_title">Option greyed out?</string>
     <string name="setup_restricted_text">For apps installed outside the Play Store, open the app info, tap ⋮ in the top corner, then “Allow restricted settings”.</string>
     <string name="setup_restricted_action">Open app info</string>

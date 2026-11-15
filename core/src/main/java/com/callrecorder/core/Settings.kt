@@ -90,6 +90,8 @@ data class AppSettings(
     val boostVolume: Boolean = false,
     /** Liste des modes [RecordFilter.ONLY_LIST] et [RecordFilter.EXCEPT_LIST]. */
     val people: List<Person> = emptyList(),
+    /** Pro : retranscription de chaque appel sur le téléphone (utilisé par l'application seulement). */
+    val autoTranscribe: Boolean = true,
 ) {
     fun toJson(): String = JSONObject().apply {
         put("auto", autoRecord)
@@ -101,6 +103,7 @@ data class AppSettings(
         put("speaker", autoSpeaker)
         put("boost", boostVolume)
         put("people", JSONArray(Person.listToJson(people)))
+        put("transcribe", autoTranscribe)
     }.toString()
 
     companion object {
@@ -120,6 +123,7 @@ data class AppSettings(
                 autoSpeaker = o.optBoolean("speaker", d.autoSpeaker),
                 boostVolume = o.optBoolean("boost", d.boostVolume),
                 people = Person.listFromJson(o.optJSONArray("people")?.toString()),
+                autoTranscribe = o.optBoolean("transcribe", d.autoTranscribe),
             )
         }
     }

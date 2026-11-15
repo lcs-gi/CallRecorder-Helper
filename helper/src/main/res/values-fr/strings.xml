@@ -17,7 +17,7 @@
     <string name="setup_perm_title">Autorisations</string>
     <string name="setup_perm_text">Micro et téléphone pour enregistrer les appels. Journal d’appels et contacts pour savoir avec qui vous avez parlé.</string>
     <string name="setup_a11y_title">Service d’enregistrement</string>
-    <string name="setup_a11y_text">Depuis Android 10, seul un service d’accessibilité peut utiliser le micro pendant un appel. Dans Accessibilité → Applications installées, ouvrez « CallRecorder Helper » et activez-le. Il ne lit rien à l’écran.</string>
+    <string name="setup_a11y_text">Depuis Android 10, seul un service d’accessibilité peut utiliser le micro pendant un appel. Dans Accessibilité → Applications installées, ouvrez « CallRecorder Helper » et activez-le. Il ne lit rien à l’écran. Android rappellera parfois qu’il a « un accès complet à l’appareil » : c’est le message standard pour tout service d’accessibilité.</string>
     <string name="setup_restricted_title">Option grisée ?</string>
     <string name="setup_restricted_text">Pour une application installée hors Play Store, ouvrez la fiche de l’application, touchez ⋮ en haut, puis « Autoriser les paramètres restreints ».</string>
     <string name="setup_restricted_action">Ouvrir la fiche de l’application</string>
