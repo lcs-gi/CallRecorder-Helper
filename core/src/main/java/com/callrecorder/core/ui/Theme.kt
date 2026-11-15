@@ -21,7 +21,8 @@ val Orange = Color(0xFFE8912D)
 val Red = Color(0xFFD64545)
 val Grey = Color(0xFF8A94A6)
 
-private val Light = lightColorScheme(
+/** Couleurs de l'application, partagées avec le widget (Glance). */
+val LightColors = lightColorScheme(
     primary = Blue,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFDCE9FB),
@@ -43,7 +44,7 @@ private val Light = lightColorScheme(
     error = Red,
 )
 
-private val Dark = darkColorScheme(
+val DarkColors = darkColorScheme(
     primary = BlueLight,
     onPrimary = Color(0xFF00284F),
     primaryContainer = Color(0xFF173B66),
@@ -77,7 +78,7 @@ private val AppTypography = Typography().let { t ->
 @Composable
 fun CallRecorderTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) Dark else Light,
+        colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
         typography = AppTypography,
         shapes = Shapes(
             small = RoundedCornerShape(10.dp),
