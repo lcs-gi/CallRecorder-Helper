@@ -22,17 +22,17 @@ class CallInfoResolver(private val context: Context) {
     private fun has(p: String) = ContextCompat.checkSelfPermission(context, p) == PackageManager.PERMISSION_GRANTED
 
     suspend fun resolve(callStart: Long): CallInfo {
-        var entry: Pair<String?, Int>? = null
+        var entry: Finalize.LogEntry? = null
         if (has(Manifest.permission.READ_CALL_LOG)) {
             // Le journal est parfois écrit avec un peu de retard.
             for (attempt in 0 until 5) {
                 delay(800)
-                entry = lastCallSince(callStart - 120_000)
+                entry = Finalize.pickLogEntry(callsAround(callStart), callStart)
                 if (entry != null) break
             }
         }
-        val number = entry?.first?.takeIf { !PhoneNumbers.isHidden(it) }
-        val direction = Finalize.direction(entry?.second)
+        val number = entry?.number?.takeIf { !PhoneNumbers.isHidden(it) }
+        val direction = Finalize.direction(entry?.type)
         val name = number?.let { contactName(it) }
         val isContact = when {
             name != null -> true
@@ -42,17 +42,18 @@ class CallInfoResolver(private val context: Context) {
         return CallInfo(number, direction, name, isContact)
     }
 
-    private fun lastCallSince(since: Long): Pair<String?, Int>? = runCatching {
+    /** Lignes du journal autour du début de l'appel ; le choix est fait par [Finalize.pickLogEntry]. */
+    private fun callsAround(callStart: Long): List<Finalize.LogEntry> = runCatching {
         context.contentResolver.query(
             CallLog.Calls.CONTENT_URI,
             arrayOf(CallLog.Calls.NUMBER, CallLog.Calls.TYPE, CallLog.Calls.DATE),
-            "${CallLog.Calls.DATE} >= ?",
-            arrayOf(since.toString()),
+            "${CallLog.Calls.DATE} >= ? AND ${CallLog.Calls.DATE} <= ?",
+            arrayOf((callStart - Finalize.LOG_BEFORE_MS).toString(), (callStart + Finalize.LOG_AFTER_MS).toString()),
             "${CallLog.Calls.DATE} DESC",
         )?.use { c ->
-            if (c.moveToFirst()) c.getString(0) to c.getInt(1) else null
+            buildList { while (c.moveToNext()) add(Finalize.LogEntry(c.getString(0), c.getInt(1), c.getLong(2))) }
         }
-    }.getOrNull()
+    }.getOrNull().orEmpty()
 
     fun contactName(number: String): String? {
         if (!has(Manifest.permission.READ_CONTACTS)) return null

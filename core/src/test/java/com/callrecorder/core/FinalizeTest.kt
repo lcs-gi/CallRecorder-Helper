@@ -84,4 +84,24 @@ class FinalizeTest {
         // Fonctionne même sans la permission Contacts du Helper : seule la comparaison des numéros compte.
         assertFalse(Finalize.shouldKeep(1, 5_000, RecordFilter.EXCEPT_LIST, noContactsPermission, people))
     }
+
+    // Deux appels successifs : on raccroche à 18:57:45 et on compose aussitôt un autre numéro.
+    private val start1 = 1_000_000_000L                       // décroché du 1er appel
+    private val dial1 = Finalize.LogEntry("0611111111", CallLog.Calls.OUTGOING_TYPE, start1 - 8_000)
+    private val dial2 = Finalize.LogEntry("0622222222", CallLog.Calls.OUTGOING_TYPE, start1 + 41 * 60_000)
+
+    @Test fun appelsSuccessifsGardentChacunLeurNumero() {
+        // La ligne du 2e appel existe déjà quand le 1er est finalisé (écrite dès la numérotation).
+        assertEquals(dial1, Finalize.pickLogEntry(listOf(dial2, dial1), start1))
+        assertEquals(dial2, Finalize.pickLogEntry(listOf(dial2, dial1), dial2.date + 5_000))
+    }
+
+    @Test fun ligneLaPlusProcheDuDebut() {
+        val earlier = Finalize.LogEntry("0633333333", CallLog.Calls.MISSED_TYPE, start1 - 100_000)
+        assertEquals(dial1, Finalize.pickLogEntry(listOf(earlier, dial1), start1))
+        // Trop loin avant ou après : pas de numéro plutôt qu'un faux numéro.
+        assertNull(Finalize.pickLogEntry(listOf(Finalize.LogEntry("06", 2, start1 - 200_000)), start1))
+        assertNull(Finalize.pickLogEntry(listOf(dial2), start1))
+        assertNull(Finalize.pickLogEntry(emptyList(), start1))
+    }
 }

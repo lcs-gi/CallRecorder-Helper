@@ -25,6 +25,25 @@ object Finalize {
     fun destination(dir: File, name: String, id: String): File =
         File(dir, name).let { if (it.exists()) File(dir, "${id.take(6)}_$name") else it }
 
+    /** Ligne du journal d'appels : numéro, type ([CallLog.Calls.TYPE]) et heure de début. */
+    data class LogEntry(val number: String?, val type: Int, val date: Long)
+
+    /** Un appel du journal commence au plus tôt 2 minutes avant le décroché (sonnerie, numérotation). */
+    const val LOG_BEFORE_MS = 120_000L
+
+    /** Et au plus tard un peu après (horloges et délais d'écriture du téléphone). */
+    const val LOG_AFTER_MS = 15_000L
+
+    /**
+     * Ligne du journal correspondant à l'appel enregistré, commencé à [callStart].
+     * Certains téléphones (Samsung) écrivent la ligne d'un appel dès la numérotation : si un nouvel appel
+     * est composé juste après avoir raccroché, sa ligne existe déjà. On prend donc la ligne la plus proche
+     * du début de l'appel, jamais une ligne nettement postérieure.
+     */
+    fun pickLogEntry(entries: List<LogEntry>, callStart: Long): LogEntry? =
+        entries.filter { it.date in (callStart - LOG_BEFORE_MS)..(callStart + LOG_AFTER_MS) }
+            .minByOrNull { kotlin.math.abs(it.date - callStart) }
+
     /** Sens d'après le journal d'appels ; null si le journal ne permet pas de conclure. */
     fun direction(callLogType: Int?): Direction? = when (callLogType) {
         CallLog.Calls.INCOMING_TYPE, CallLog.Calls.ANSWERED_EXTERNALLY_TYPE -> Direction.INCOMING
