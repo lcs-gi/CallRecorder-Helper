@@ -65,4 +65,23 @@ class FinalizeTest {
         assertNull(Finalize.direction(CallLog.Calls.VOICEMAIL_TYPE))
         assertNull(Finalize.direction(null))
     }
+
+    // Liste choisie : Marie y figure, enregistrée avec un autre format de numéro.
+    private val people = listOf(Person("Marie", "06 12 34 56 78"))
+
+    @Test fun seulementCesPersonnes() {
+        assertTrue(Finalize.shouldKeep(1, 5_000, RecordFilter.ONLY_LIST, contact, people))
+        assertFalse(Finalize.shouldKeep(1, 5_000, RecordFilter.ONLY_LIST, stranger, people))
+        assertFalse(Finalize.shouldKeep(1, 5_000, RecordFilter.ONLY_LIST, hidden, people))
+        // Liste vide : rien n'est conservé.
+        assertFalse(Finalize.shouldKeep(1, 5_000, RecordFilter.ONLY_LIST, contact))
+    }
+
+    @Test fun tousSaufCesPersonnes() {
+        assertFalse(Finalize.shouldKeep(1, 5_000, RecordFilter.EXCEPT_LIST, contact, people))
+        assertTrue(Finalize.shouldKeep(1, 5_000, RecordFilter.EXCEPT_LIST, stranger, people))
+        assertTrue(Finalize.shouldKeep(1, 5_000, RecordFilter.EXCEPT_LIST, hidden, people))
+        // Fonctionne même sans la permission Contacts du Helper : seule la comparaison des numéros compte.
+        assertFalse(Finalize.shouldKeep(1, 5_000, RecordFilter.EXCEPT_LIST, noContactsPermission, people))
+    }
 }

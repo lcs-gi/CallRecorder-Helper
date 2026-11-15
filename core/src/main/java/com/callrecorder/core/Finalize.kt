@@ -17,9 +17,9 @@ object Finalize {
     /** En dessous, l'appel a été raccroché aussitôt décroché : rien d'utile n'a été enregistré. */
     const val MIN_DURATION_MS = 1000L
 
-    fun shouldKeep(fileBytes: Long, durationMs: Long, filter: RecordFilter, info: CallInfo): Boolean =
+    fun shouldKeep(fileBytes: Long, durationMs: Long, filter: RecordFilter, info: CallInfo, people: List<Person> = emptyList()): Boolean =
         fileBytes > 0 && durationMs >= MIN_DURATION_MS &&
-            filter.keeps(info.isContact, hiddenNumber = info.number == null)
+            filter.keeps(info.isContact, hiddenNumber = info.number == null, number = info.number, people = people)
 
     /** Fichier de destination ; si le nom est déjà pris (deux appels dans la même seconde), préfixé par l'identifiant. */
     fun destination(dir: File, name: String, id: String): File =

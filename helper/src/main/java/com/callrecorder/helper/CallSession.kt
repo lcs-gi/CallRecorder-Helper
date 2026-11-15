@@ -133,7 +133,7 @@ object CallSession {
         AppLink.liveStop(app)
         val info = CallInfoResolver(app).resolve(call.startedAt)
         val durationMs = endedAt - call.startedAt
-        if (!Finalize.shouldKeep(file.length(), durationMs, s.filter, info)) {
+        if (!Finalize.shouldKeep(file.length(), durationMs, s.filter, info, s.people)) {
             file.delete()
             return
         }

@@ -1,17 +1,52 @@
 package com.callrecorder.core
 
 import android.media.MediaRecorder
+import org.json.JSONArray
 import org.json.JSONObject
 
 /** Appels à conserver. Tous les appels sont enregistrés ; le tri se fait à la fin, une fois le numéro connu. */
 enum class RecordFilter {
-    ALL, CONTACTS, UNKNOWN;
+    ALL, CONTACTS, UNKNOWN,
+    /** Seulement les personnes de la liste choisie. */
+    ONLY_LIST,
+    /** Tout le monde sauf les personnes de la liste choisie. */
+    EXCEPT_LIST;
 
-    /** [isContact] : null si on ne sait pas (permission Contacts refusée) → on garde. */
-    fun keeps(isContact: Boolean?, hiddenNumber: Boolean): Boolean = when (this) {
-        ALL -> true
-        CONTACTS -> isContact != false && !hiddenNumber
-        UNKNOWN -> isContact != true
+    /** Mode avec liste de personnes (fonction Pro dans l'application). */
+    val usesList: Boolean get() = this == ONLY_LIST || this == EXCEPT_LIST
+
+    /**
+     * [isContact] : null si on ne sait pas (permission Contacts refusée) → on garde.
+     * [number] et [people] servent aux modes avec liste ; un numéro masqué n'est jamais dans la liste.
+     */
+    fun keeps(isContact: Boolean?, hiddenNumber: Boolean, number: String? = null, people: List<Person> = emptyList()): Boolean {
+        val listed = !hiddenNumber && people.any { PhoneNumbers.same(it.number, number) }
+        return when (this) {
+            ALL -> true
+            CONTACTS -> isContact != false && !hiddenNumber
+            UNKNOWN -> isContact != true
+            ONLY_LIST -> listed
+            EXCEPT_LIST -> !listed
+        }
+    }
+}
+
+/** Personne d'une liste « appels à conserver », choisie dans les contacts. */
+data class Person(val name: String?, val number: String) {
+    fun toJson(): JSONObject = JSONObject().put("number", number).apply { name?.let { put("name", it) } }
+
+    companion object {
+        fun listToJson(list: List<Person>): String = JSONArray().apply { list.forEach { put(it.toJson()) } }.toString()
+
+        /** Liste vide si le texte est absent ou illisible. */
+        fun listFromJson(text: String?): List<Person> {
+            val a = text?.let { runCatching { JSONArray(it) }.getOrNull() } ?: return emptyList()
+            return (0 until a.length()).mapNotNull { i ->
+                val o = a.optJSONObject(i) ?: return@mapNotNull null
+                val number = o.optString("number").takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                Person(o.optString("name").takeIf { it.isNotBlank() }, number)
+            }
+        }
     }
 }
 
@@ -53,6 +88,8 @@ data class AppSettings(
     val autoSpeaker: Boolean = false,
     /** Volume de l'écouteur au maximum pendant l'appel, rétabli ensuite. */
     val boostVolume: Boolean = false,
+    /** Liste des modes [RecordFilter.ONLY_LIST] et [RecordFilter.EXCEPT_LIST]. */
+    val people: List<Person> = emptyList(),
 ) {
     fun toJson(): String = JSONObject().apply {
         put("auto", autoRecord)
@@ -63,6 +100,7 @@ data class AppSettings(
         put("notify", notifyAfterCall)
         put("speaker", autoSpeaker)
         put("boost", boostVolume)
+        put("people", JSONArray(Person.listToJson(people)))
     }.toString()
 
     companion object {
@@ -81,6 +119,7 @@ data class AppSettings(
                 notifyAfterCall = o.optBoolean("notify", d.notifyAfterCall),
                 autoSpeaker = o.optBoolean("speaker", d.autoSpeaker),
                 boostVolume = o.optBoolean("boost", d.boostVolume),
+                people = Person.listFromJson(o.optJSONArray("people")?.toString()),
             )
         }
     }
