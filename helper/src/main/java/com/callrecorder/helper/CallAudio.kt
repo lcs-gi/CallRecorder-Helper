@@ -72,7 +72,7 @@ class CallAudio(context: Context) {
             add(AudioDeviceInfo.TYPE_BLUETOOTH_SCO)
             add(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP)
             add(AudioDeviceInfo.TYPE_USB_HEADSET)
-            add(AudioDeviceInfo.TYPE_HEARING_AID)
+            if (Build.VERSION.SDK_INT >= 28) add(AudioDeviceInfo.TYPE_HEARING_AID)
             add(26) // TYPE_BLE_HEADSET (Android 12)
         }
 

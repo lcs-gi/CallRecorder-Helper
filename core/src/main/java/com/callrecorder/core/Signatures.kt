@@ -28,6 +28,30 @@ object Signatures {
         return theirs.any { it in allowed }
     }
 
+    /**
+     * Vérifie l'appelant d'une transaction Binder en cours (ContentProvider, service AIDL) :
+     * il doit appartenir à [packageName] et être signé par un certificat de confiance.
+     * L'identité vient de `Binder.getCallingUid()`, jamais d'une donnée fournie par l'appelant.
+     * Un appel hors transaction (UID de l'application elle-même) est refusé.
+     */
+    fun isTrustedCaller(context: Context, callingUid: Int, packageName: String, trustedCerts: Collection<String>): Boolean {
+        if (callingUid == android.os.Process.myUid()) return false
+        val pm = context.packageManager
+        if (packageName !in pm.getPackagesForUid(callingUid).orEmpty()) return false
+        val allowed = certificates(pm, context.packageName) + trustedCerts.map { normalize(it) }
+        if (allowed.isEmpty()) return false
+        return if (Build.VERSION.SDK_INT >= 28) {
+            // Certificat de l'UID appelant lui-même, historique de rotation de clé compris.
+            allowed.any { runCatching { pm.hasSigningCertificate(callingUid, hexToBytes(it), PackageManager.CERT_INPUT_SHA256) }.getOrDefault(false) }
+        } else {
+            certificates(pm, packageName).any { it in allowed }
+        }
+    }
+
+    fun hexToBytes(hex: String): ByteArray = ByteArray(hex.length / 2) { i ->
+        ((Character.digit(hex[2 * i], 16) shl 4) + Character.digit(hex[2 * i + 1], 16)).toByte()
+    }
+
     @SuppressLint("PackageManagerGetSignatures")
     @Suppress("DEPRECATION")
     fun certificates(pm: PackageManager, packageName: String): Set<String> = runCatching {

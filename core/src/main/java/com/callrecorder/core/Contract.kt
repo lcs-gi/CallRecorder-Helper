@@ -1,5 +1,6 @@
 package com.callrecorder.core
 
+import androidx.core.net.toUri
 import android.net.Uri
 
 /** Appel en cours d'enregistrement (bandeau dans l'application). */
@@ -49,7 +50,7 @@ object Contract {
         android.Manifest.permission.READ_CONTACTS,
     )
 
-    val BASE: Uri get() = Uri.parse("content://$AUTHORITY")
+    val BASE: Uri get() = "content://$AUTHORITY".toUri()
     val SETTINGS: Uri get() = Uri.withAppendedPath(BASE, PATH_SETTINGS)
     val RECORDINGS: Uri get() = Uri.withAppendedPath(BASE, PATH_RECORDINGS)
     fun incoming(name: String): Uri = BASE.buildUpon().appendPath(PATH_INCOMING).appendPath(name).build()

@@ -21,7 +21,9 @@ class TranslationsTest {
         for (i in 0 until plurals.length) {
             val e = plurals.item(i) as org.w3c.dom.Element
             val parent = (e.parentNode as org.w3c.dom.Element).getAttribute("name")
-            out["$parent/${e.getAttribute("quantity")}"] = e.textContent
+            // Les formes de pluriel dépendent de la langue (le français a « many », pas l'anglais) :
+            // on compare la forme générale « other », présente partout.
+            if (e.getAttribute("quantity") == "other") out["$parent/other"] = e.textContent
         }
         return out
     }

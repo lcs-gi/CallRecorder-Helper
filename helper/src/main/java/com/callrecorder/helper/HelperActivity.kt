@@ -1,5 +1,6 @@
 package com.callrecorder.helper
 
+import androidx.core.net.toUri
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -37,6 +38,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.callrecorder.core.Contract
+import com.callrecorder.core.PermissionFlow
+import com.callrecorder.core.findActivity
+import com.callrecorder.core.ui.withContent
+import androidx.compose.foundation.layout.consumeWindowInsets
 import com.callrecorder.core.ui.Blue
 import com.callrecorder.core.ui.CallRecorderTheme
 import com.callrecorder.core.ui.Green
@@ -96,10 +101,25 @@ private fun HelperScreen() {
         CallAccessibilityService.instance?.listen()
     }
     val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { refresh() }
-    val requestPermissions = { permLauncher.launch(HelperStatus.permissions()) }
+    val launch = {
+        val perms = HelperStatus.permissions()
+        PermissionFlow.markAsked(context, perms)
+        permLauncher.launch(perms)
+    }
+    // Bouton de l'étape (l'explication est affichée juste au-dessus) : refus définitif → fiche de l'application.
+    val requestPermissions = {
+        val activity = context.findActivity()
+        val missing = status.missingPermissions.toTypedArray()
+        if (activity != null && PermissionFlow.anyPermanentlyDenied(activity, missing)) PermissionFlow.openAppSettings(context)
+        else launch()
+    }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { refresh(); resumes++ }
-    LaunchedEffect(Unit) { if (status.missingPermissions.isNotEmpty()) requestPermissions() }
+    // Premier lancement seulement : jamais redemandé automatiquement après un refus.
+    LaunchedEffect(Unit) {
+        val activity = context.findActivity() ?: return@LaunchedEffect
+        if (PermissionFlow.neverAsked(activity, HelperStatus.permissions())) launch()
+    }
     // À chaque retour sur l'écran : remise de ce qui attend (application installée entre-temps…).
     LaunchedEffect(resumes) {
         if (status.pending > 0 && withContext(Dispatchers.IO) { AppLink.deliver(context) } > 0) {
@@ -117,9 +137,9 @@ private fun HelperScreen() {
         },
     ) { padding ->
         LazyColumn(
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = padding.withContent(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(padding).fillMaxSize(),
+            modifier = Modifier.fillMaxSize().consumeWindowInsets(padding),
         ) {
             item { StatusCard(status) }
             item {
@@ -210,15 +230,15 @@ private fun openApp(context: Context) {
 }
 
 private fun openStore(context: Context) {
-    val market = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${Contract.APP_PACKAGE}"))
+    val market = Intent(Intent.ACTION_VIEW, "market://details?id=${Contract.APP_PACKAGE}".toUri())
     runCatching { context.startActivity(market.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.onFailure {
-        open(context, Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${Contract.APP_PACKAGE}")))
+        open(context, Intent(Intent.ACTION_VIEW, "https://play.google.com/store/apps/details?id=${Contract.APP_PACKAGE}".toUri()))
     }
 }
 
 @SuppressLint("BatteryLife")
 private fun requestBatteryExemption(context: Context) {
-    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:${context.packageName}"))
+    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, "package:${context.packageName}".toUri())
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     runCatching { context.startActivity(intent) }.onFailure { open(context, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) }
 }

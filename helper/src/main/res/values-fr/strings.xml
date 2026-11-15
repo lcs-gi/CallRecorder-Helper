@@ -11,6 +11,7 @@
     <plurals name="status_pending">
         <item quantity="one">%1$d enregistrement en attente de l’application CallRecorder</item>
         <item quantity="other">%1$d enregistrements en attente de l’application CallRecorder</item>
+        <item quantity="many">%1$d enregistrements en attente de l’application CallRecorder</item>
     </plurals>
 
     <string name="setup_perm_title">Autorisations</string>

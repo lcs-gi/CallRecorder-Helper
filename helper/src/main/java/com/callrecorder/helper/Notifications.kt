@@ -83,7 +83,15 @@ object Notifications {
 
     fun cancelPending(context: Context) = NotificationManagerCompat.from(context).cancel(ID_PENDING)
 
-    private fun post(context: Context, id: Int, b: NotificationCompat.Builder) {
-        if (canNotify(context)) runCatching { NotificationManagerCompat.from(context).notify(id, b.build()) }
+    /** Permission vérifiée juste avant ; elle peut être retirée entre-temps, d'où la SecurityException. */
+    fun post(context: Context, id: Int, notification: android.app.Notification) {
+        if (!canNotify(context)) return
+        try {
+            NotificationManagerCompat.from(context).notify(id, notification)
+        } catch (e: SecurityException) {
+            android.util.Log.w("Notifications", "Notification refusée", e)
+        }
     }
+
+    private fun post(context: Context, id: Int, b: NotificationCompat.Builder) = post(context, id, b.build())
 }

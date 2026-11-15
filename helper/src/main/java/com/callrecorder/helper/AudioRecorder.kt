@@ -21,10 +21,11 @@ import kotlin.math.sqrt
  * Le niveau sonore est relevé toutes les 200 ms pour dessiner la forme d'onde et détecter un enregistrement muet.
  */
 class AudioRecorder(private val context: Context) {
-    private var recorder: MediaRecorder? = null
+    // Lu par l'échantillonneur (fil principal), arrêté sur le fil du micro (CallSession).
+    @Volatile private var recorder: MediaRecorder? = null
     private var sampler: Job? = null
     private val wave = ByteArrayOutputStream()
-    private var peak = 0
+    @Volatile private var peak = 0
 
     var usedSource: AudioSourceOption? = null
         private set

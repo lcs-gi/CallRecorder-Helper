@@ -58,6 +58,13 @@ class ContractTest {
     }
 
     @Test
+    fun empreinteEnOctets() {
+        val bytes = Signatures.hexToBytes("00FF7a10")
+        assertEquals(listOf(0, -1, 0x7a, 0x10), bytes.map { it.toInt() })
+        assertEquals("00FF7A10", bytes.joinToString("") { "%02X".format(it) })
+    }
+
+    @Test
     fun enregistrementTransmisSansPerte() {
         val r = Recording(
             id = id, fileName = "Appel_2026-11-14_15-30-12_Marie.m4a", startedAt = 1_700_000_000_000, durationMs = 61_000,

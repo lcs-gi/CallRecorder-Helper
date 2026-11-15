@@ -1,5 +1,6 @@
 package com.callrecorder.helper
 
+import androidx.core.content.edit
 import android.content.ContentValues
 import android.content.Context
 import android.os.Bundle
@@ -26,10 +27,18 @@ object AppLink {
     fun isInstalled(context: Context): Boolean =
         runCatching { context.packageManager.getPackageInfo(Contract.APP_PACKAGE, 0); true }.getOrDefault(false)
 
-    /** Application installée et signée par nous : on ne confie pas un enregistrement à une imitation. */
+    /**
+     * Application installée, signée par nous, et propriétaire du point d'échange : on ne confie pas
+     * un enregistrement à une imitation (même nom de paquet ou même autorité de ContentProvider).
+     */
     fun isTrusted(context: Context): Boolean =
         isInstalled(context) &&
+            providerOwner(context) == Contract.APP_PACKAGE &&
             Signatures.isTrusted(context, Contract.APP_PACKAGE, Signatures.parseList(BuildConfig.TRUSTED_APP_CERTS))
+
+    @Suppress("DEPRECATION")
+    private fun providerOwner(context: Context): String? =
+        runCatching { context.packageManager.resolveContentProvider(Contract.AUTHORITY, 0)?.packageName }.getOrNull()
 
     /** Réglages de l'application ; les derniers connus si elle est injoignable, sinon ceux par défaut. */
     fun settings(context: Context): AppSettings {
@@ -39,7 +48,7 @@ object AppLink {
                 if (c.moveToFirst()) c.getString(c.getColumnIndexOrThrow(Contract.COLUMN_JSON)) else null
             }
         }.onFailure { Log.w(TAG, "Réglages illisibles", it) }.getOrNull() else null
-        if (fresh != null) prefs.edit().putString("settings", fresh).apply()
+        if (fresh != null) prefs.edit { putString("settings", fresh) }
         return AppSettings.fromJson(fresh ?: prefs.getString("settings", null))
     }
 

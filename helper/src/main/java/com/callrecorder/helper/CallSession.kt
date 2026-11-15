@@ -1,9 +1,11 @@
 package com.callrecorder.helper
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.PowerManager
 import android.util.Log
 import com.callrecorder.core.AppSettings
+import com.callrecorder.core.AudioSourceOption
 import com.callrecorder.core.Direction
 import com.callrecorder.core.Finalize
 import com.callrecorder.core.Format
@@ -28,6 +30,12 @@ import java.util.UUID
 object CallSession {
     private const val TAG = "CallSession"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    /**
+     * MediaRecorder (préparation, démarrage, arrêt) hors du fil principal : ces appels peuvent durer
+     * plusieurs centaines de millisecondes quand l'audio du téléphone est occupé par l'appel.
+     * Un seul fil, pour que démarrage et arrêt ne se chevauchent jamais.
+     */
+    private val recorderThread = Dispatchers.IO.limitedParallelism(1)
 
     private val _live = MutableStateFlow<LiveCall?>(null)
     val live: StateFlow<LiveCall?> = _live.asStateFlow()
@@ -36,6 +44,7 @@ object CallSession {
     private var active = false
     private var generation = 0
     private var settings = AppSettings()
+    @SuppressLint("StaticFieldLeak") // AudioRecorder ne garde que le contexte de l'application.
     private var recorder: AudioRecorder? = null
     private var tempFile: File? = null
     private var wakeLock: PowerManager.WakeLock? = null
@@ -66,11 +75,17 @@ object CallSession {
 
             val file = File(AppLink.pendingDir(app), "recording_$startedAt.m4a.part")
             val r = AudioRecorder(app)
-            if (!r.start(file, s.source, s.quality, scope)) {
+            if (!withContext(recorderThread) { r.start(file, s.source, s.quality, scope) }) {
                 Log.e(TAG, "Aucune source audio disponible")
                 Notifications.showError(app)
                 callAudio.restore()
                 audio = null
+                return@launch
+            }
+            // Raccroché pendant le démarrage du micro : rien à garder.
+            if (!active || token != generation) {
+                withContext(recorderThread) { r.stop() }
+                file.delete()
                 return@launch
             }
             recorder = r
@@ -96,8 +111,6 @@ object CallSession {
         recorder = null
         tempFile = null
         _live.value = null
-        val (wave, silent) = r.stop()
-        val source = r.usedSource
         runCatching { wakeLock?.release() }
         wakeLock = null
 
@@ -106,32 +119,41 @@ object CallSession {
         val endedAt = System.currentTimeMillis()
         val s = settings
 
-        scope.launch(Dispatchers.IO) {
-            AppLink.liveStop(app)
-            val info = CallInfoResolver(app).resolve(call.startedAt)
-            val durationMs = endedAt - call.startedAt
-            if (!Finalize.shouldKeep(file.length(), durationMs, s.filter, info)) {
-                file.delete()
-                return@launch
-            }
-            val id = UUID.randomUUID().toString()
-            val rec = Recording(
-                id = id,
-                // Nom proposé ; l'application le rend unique dans son dossier.
-                fileName = Format.fileName(app.getString(R.string.file_prefix), call.startedAt, info.contactName ?: info.number),
-                startedAt = call.startedAt,
-                durationMs = durationMs,
-                direction = info.direction ?: call.direction,
-                number = info.number,
-                contactName = info.contactName,
-                sizeBytes = file.length(),
-                silent = silent,
-                audioSource = source ?: s.source,
-            )
-            AppLink.enqueue(app, rec, file, wave)
-            AppLink.deliver(app)
-            // Application absente ou injoignable : l'enregistrement attend dans le Helper.
-            if (AppLink.pendingCount(app) > 0) Notifications.showPending(app)
+        scope.launch {
+            val (wave, silent) = withContext(recorderThread) { r.stop() }
+            val source = r.usedSource
+            withContext(Dispatchers.IO) { finish(app, call, file, wave, silent, source, endedAt, s) }
         }
+    }
+
+    private suspend fun finish(
+        app: Context, call: LiveCall, file: File, wave: ByteArray, silent: Boolean,
+        source: AudioSourceOption?, endedAt: Long, s: AppSettings,
+    ) {
+        AppLink.liveStop(app)
+        val info = CallInfoResolver(app).resolve(call.startedAt)
+        val durationMs = endedAt - call.startedAt
+        if (!Finalize.shouldKeep(file.length(), durationMs, s.filter, info)) {
+            file.delete()
+            return
+        }
+        val id = UUID.randomUUID().toString()
+        val rec = Recording(
+            id = id,
+            // Nom proposé ; l'application le rend unique dans son dossier.
+            fileName = Format.fileName(app.getString(R.string.file_prefix), call.startedAt, info.contactName ?: info.number),
+            startedAt = call.startedAt,
+            durationMs = durationMs,
+            direction = info.direction ?: call.direction,
+            number = info.number,
+            contactName = info.contactName,
+            sizeBytes = file.length(),
+            silent = silent,
+            audioSource = source ?: s.source,
+        )
+        AppLink.enqueue(app, rec, file, wave)
+        AppLink.deliver(app)
+        // Application absente ou injoignable : l'enregistrement attend dans le Helper.
+        if (AppLink.pendingCount(app) > 0) Notifications.showPending(app)
     }
 }

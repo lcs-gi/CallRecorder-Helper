@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Aucune sauvegarde dans le cloud (Google Drive) : les enregistrements et leurs métadonnées ne quittent pas
+    le téléphone. Le transfert direct vers un nouveau téléphone (câble ou Wi-Fi local) reste possible.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+    </cloud-backup>
+</data-extraction-rules>

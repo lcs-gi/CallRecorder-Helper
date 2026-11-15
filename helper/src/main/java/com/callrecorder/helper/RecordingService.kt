@@ -54,9 +54,7 @@ class RecordingService : Service() {
         }
 
         private fun postPlain(context: Context, startedAt: Long) {
-            if (Notifications.canNotify(context)) runCatching {
-                NotificationManagerCompat.from(context).notify(Notifications.ID_LIVE, Notifications.live(context, startedAt))
-            }
+            Notifications.post(context, Notifications.ID_LIVE, Notifications.live(context, startedAt))
         }
     }
 }
