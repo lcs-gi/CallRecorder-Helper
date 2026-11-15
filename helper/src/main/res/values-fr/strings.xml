@@ -26,6 +26,8 @@
     <string name="setup_optional">Facultatif</string>
     <string name="setup_app_title">Application CallRecorder</string>
     <string name="setup_app_text">Vos enregistrements s’écoutent, se recherchent et se classent dans l’application CallRecorder.</string>
+    <string name="about_title">Compagnon de CallRecorder</string>
+    <string name="about_text">Cette application est nécessaire au fonctionnement de CallRecorder : elle enregistre vos appels et les remet à l’application.</string>
     <string name="privacy_text">Le Helper communique uniquement avec l’application CallRecorder de ce téléphone. Il n’a pas accès à Internet : vos appels ne quittent jamais votre téléphone.</string>
 
     <string name="a11y_label">CallRecorder Helper – enregistrement des appels</string>

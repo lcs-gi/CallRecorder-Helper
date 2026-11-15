@@ -141,6 +141,7 @@ private fun HelperScreen() {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxSize().consumeWindowInsets(padding),
         ) {
+            item { AboutCard() }
             item { StatusCard(status) }
             item {
                 SetupStep(
@@ -185,10 +186,26 @@ private fun HelperScreen() {
                     Text(stringResource(R.string.action_open_app))
                 }
             }
-            item {
+        }
+    }
+}
+
+/** Rôle du Helper et confidentialité, en tête de l'écran. */
+@Composable
+private fun AboutCard() {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.large,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(Modifier.padding(16.dp)) {
+            Icon(Icons.Filled.Info, null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(12.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(stringResource(R.string.about_title), style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.about_text), style = MaterialTheme.typography.bodyMedium)
                 Text(
                     stringResource(R.string.privacy_text), style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
                 )
             }
         }
