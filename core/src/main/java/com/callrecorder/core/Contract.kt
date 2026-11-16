@@ -33,6 +33,9 @@ object Contract {
     const val PATH_RECORDINGS = "recordings"
     const val METHOD_LIVE_START = "live_start"
     const val METHOD_LIVE_STOP = "live_stop"
+    /** Résultat de l'assistant de réglage du son ([CalibrationResult] en JSON dans [EXTRA_JSON]). */
+    const val METHOD_CALIBRATION = "calibration"
+    const val EXTRA_JSON = "json"
     const val EXTRA_STARTED_AT = "started_at"
     const val EXTRA_DIRECTION = "direction"
     const val EXTRA_VERSION = "version"

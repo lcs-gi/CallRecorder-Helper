@@ -42,6 +42,8 @@
     <string name="notif_error_text">Le micro est indisponible. Vérifiez la configuration.</string>
     <string name="notif_pending">Appel enregistré</string>
     <string name="notif_pending_text">Installez ou ouvrez l’application CallRecorder pour l’écouter.</string>
+    <string name="notif_calibration">Test du son terminé</string>
+    <string name="notif_calibration_text">Vous pouvez raccrocher. Le meilleur réglage est appliqué dans CallRecorder.</string>
 
     <string name="file_prefix">Appel</string>
 </resources>

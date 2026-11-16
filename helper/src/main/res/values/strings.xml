@@ -43,6 +43,8 @@
     <string name="notif_error_text">The microphone is unavailable. Check the setup.</string>
     <string name="notif_pending">Call recorded</string>
     <string name="notif_pending_text">Install or open the CallRecorder app to listen to it.</string>
+    <string name="notif_calibration">Sound test finished</string>
+    <string name="notif_calibration_text">You can hang up. The best setting is applied in CallRecorder.</string>
 
     <string name="file_prefix">Call</string>
 </resources>

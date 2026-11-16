@@ -92,6 +92,8 @@ data class AppSettings(
     val people: List<Person> = emptyList(),
     /** Pro : retranscription de chaque appel sur le téléphone (utilisé par l'application seulement). */
     val autoTranscribe: Boolean = true,
+    /** Assistant de réglage du son : le prochain appel avant cette heure (ms) sert de test et n'est pas enregistré. */
+    val calibrateUntil: Long = 0,
 ) {
     fun toJson(): String = JSONObject().apply {
         put("auto", autoRecord)
@@ -104,6 +106,7 @@ data class AppSettings(
         put("boost", boostVolume)
         put("people", JSONArray(Person.listToJson(people)))
         put("transcribe", autoTranscribe)
+        put("calibrateUntil", calibrateUntil)
     }.toString()
 
     companion object {
@@ -124,6 +127,7 @@ data class AppSettings(
                 boostVolume = o.optBoolean("boost", d.boostVolume),
                 people = Person.listFromJson(o.optJSONArray("people")?.toString()),
                 autoTranscribe = o.optBoolean("transcribe", d.autoTranscribe),
+                calibrateUntil = o.optLong("calibrateUntil", d.calibrateUntil),
             )
         }
     }

@@ -19,6 +19,7 @@ object Notifications {
     const val ID_LIVE = 1
     private const val ID_ERROR = 2
     private const val ID_PENDING = 3
+    private const val ID_CALIBRATION = 4
 
     fun createChannels(context: Context) {
         val nm = context.getSystemService(NotificationManager::class.java)
@@ -79,6 +80,18 @@ object Notifications {
             .setContentText(context.getString(R.string.notif_pending_text))
             .setAutoCancel(true)
             .setContentIntent(openHelper(context)),
+    )
+
+    /** Assistant de réglage du son : les essais sont finis, l'utilisateur peut raccrocher. */
+    fun showCalibrationDone(context: Context) = post(
+        context, ID_CALIBRATION,
+        NotificationCompat.Builder(context, CHANNEL_STATUS)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.notif_calibration))
+            .setContentText(context.getString(R.string.notif_calibration_text))
+            .setAutoCancel(true)
+            .setTimeoutAfter(5 * 60_000L)
+            .setContentIntent(openTarget(context)),
     )
 
     fun cancelPending(context: Context) = NotificationManagerCompat.from(context).cancel(ID_PENDING)

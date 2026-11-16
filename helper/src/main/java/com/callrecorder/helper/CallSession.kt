@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.PowerManager
 import android.util.Log
 import com.callrecorder.core.AppSettings
+import com.callrecorder.core.Calibration
 import com.callrecorder.core.AudioSourceOption
 import com.callrecorder.core.Direction
 import com.callrecorder.core.Finalize
@@ -60,7 +61,13 @@ object CallSession {
         scope.launch {
             // Réglages lus dans l'application (autre processus) : hors du fil principal.
             val s = withContext(Dispatchers.IO) { AppLink.settings(app) }
-            if (!active || token != generation || !s.autoRecord) return@launch
+            if (!active || token != generation) return@launch
+            // Assistant de réglage du son : cet appel sert de test, il n'est pas enregistré.
+            if (Calibration.active(s, System.currentTimeMillis())) {
+                calibrate(app, token)
+                return@launch
+            }
+            if (!s.autoRecord) return@launch
             settings = s
 
             // Haut-parleur / volume avant de démarrer le micro, pour capter le correspondant dès le début.
@@ -97,6 +104,23 @@ object CallSession {
                 .apply { acquire(4 * 3600_000L) }
             RecordingService.start(app)
             launch(Dispatchers.IO) { AppLink.liveStart(app, call) }
+        }
+    }
+
+    private suspend fun calibrate(app: Context, token: Int) {
+        val callAudio = CallAudio(app)
+        audio = callAudio
+        val lock = app.getSystemService(PowerManager::class.java)
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CallRecorderHelper:calibration")
+            .apply { acquire(5 * 60_000L) }
+        try {
+            val result = Calibrator(app).run(isActive = { active && token == generation }, audio = callAudio)
+            withContext(Dispatchers.IO) { AppLink.calibration(app, result) }
+            if (active && token == generation) Notifications.showCalibrationDone(app)
+        } finally {
+            callAudio.restore()
+            if (audio === callAudio) audio = null
+            runCatching { lock.release() }
         }
     }
 

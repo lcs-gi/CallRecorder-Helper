@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import com.callrecorder.core.AppSettings
+import com.callrecorder.core.CalibrationResult
 import com.callrecorder.core.Contract
 import com.callrecorder.core.LiveCall
 import com.callrecorder.core.Recording
@@ -61,6 +62,11 @@ object AppLink {
     )
 
     fun liveStop(context: Context) = notify(context, Contract.METHOD_LIVE_STOP, Bundle())
+
+    /** Résultat de l'assistant de réglage du son : l'application applique le meilleur réglage. */
+    fun calibration(context: Context, result: CalibrationResult) = notify(
+        context, Contract.METHOD_CALIBRATION, Bundle().apply { putString(Contract.EXTRA_JSON, result.toJson()) },
+    )
 
     private fun notify(context: Context, method: String, extras: Bundle) {
         if (!isTrusted(context)) return
