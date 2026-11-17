@@ -18,6 +18,8 @@ import kotlin.math.sqrt
 /**
  * Enregistrement AAC (.m4a) avec MediaRecorder.
  * Si la source choisie est refusée par le téléphone, les suivantes sont essayées dans l'ordre.
+ * Stéréo d'abord (micro du bas et micro du haut, pour distinguer ma voix de celle de l'écouteur), mono si le
+ * téléphone la refuse. Même débit : le fichier n'est pas plus lourd.
  * Le niveau sonore est relevé toutes les 200 ms pour dessiner la forme d'onde et détecter un enregistrement muet.
  */
 class AudioRecorder(private val context: Context) {
@@ -30,15 +32,19 @@ class AudioRecorder(private val context: Context) {
     var usedSource: AudioSourceOption? = null
         private set
 
+    /** Nombre de canaux enregistrés (2 si la stéréo a été acceptée). */
+    var usedChannels: Int = 1
+        private set
+
     fun start(file: File, preferred: AudioSourceOption, quality: AudioQuality, scope: CoroutineScope): Boolean {
         val order = listOf(preferred) + FALLBACK.filter { it != preferred }
-        for (source in order) {
+        for (source in order) for (channels in intArrayOf(2, 1)) {
             val r = newRecorder()
             try {
                 r.setAudioSource(source.source)
                 r.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 r.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                r.setAudioChannels(1)
+                r.setAudioChannels(channels)
                 r.setAudioSamplingRate(quality.sampleRate)
                 r.setAudioEncodingBitRate(quality.bitRate)
                 r.setOutputFile(file.absolutePath)
@@ -46,10 +52,12 @@ class AudioRecorder(private val context: Context) {
                 r.start()
                 recorder = r
                 usedSource = source
+                usedChannels = channels
+                Log.i(TAG, "Enregistrement : ${source.name}, $channels canal(aux)")
                 startSampling(scope)
                 return true
             } catch (e: Exception) {
-                Log.w(TAG, "Source ${source.name} refusée", e)
+                Log.w(TAG, "Source ${source.name} ($channels canal(aux)) refusée", e)
                 runCatching { r.reset() }
                 runCatching { r.release() }
                 file.delete()
