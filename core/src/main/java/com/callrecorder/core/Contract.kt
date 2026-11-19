@@ -19,14 +19,14 @@ data class LiveCall(val startedAt: Long, val direction: Direction)
  * Tout reste sur le téléphone : il n'y a aucun échange réseau.
  */
 object Contract {
-    const val APP_PACKAGE = "com.callrecorder.app"
-    const val HELPER_PACKAGE = "com.callrecorder.helper"
+    const val APP_PACKAGE = "com.lcsgi.callrecorder"
+    const val HELPER_PACKAGE = "com.lcsgi.callrecorder.helper"
     const val HELPER_ACCESSIBILITY_SERVICE = "com.callrecorder.helper.CallAccessibilityService"
 
     /** Version des échanges, pour les évolutions futures (le Helper et l'application se mettent à jour séparément). */
     const val VERSION = 1
 
-    const val AUTHORITY = "com.callrecorder.app.recordings"
+    const val AUTHORITY = "com.lcsgi.callrecorder.recordings"
     const val COLUMN_JSON = "json"
     const val PATH_SETTINGS = "settings"
     const val PATH_INCOMING = "incoming"

@@ -1,6 +1,6 @@
 # CallRecorder Helper
 
-> **English summary** — Companion app of [CallRecorder](https://play.google.com/store/apps/details?id=com.callrecorder.app).
+> **English summary** — Companion app of [CallRecorder](https://play.google.com/store/apps/details?id=com.lcsgi.callrecorder).
 > It detects phone calls, records them through an accessibility service (the only way to use the microphone during
 > a call on Android 10+ without root) and hands each recording to the CallRecorder app on the same phone.
 > **No internet permission**: recordings never leave the device. Open source so that anyone can check it.

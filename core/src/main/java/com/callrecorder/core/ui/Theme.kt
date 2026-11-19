@@ -76,9 +76,9 @@ private val AppTypography = Typography().let { t ->
 }
 
 @Composable
-fun CallRecorderTheme(content: @Composable () -> Unit) {
+fun CallRecorderTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
+        colorScheme = if (darkTheme) DarkColors else LightColors,
         typography = AppTypography,
         shapes = Shapes(
             small = RoundedCornerShape(10.dp),

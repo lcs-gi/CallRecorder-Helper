@@ -25,7 +25,7 @@
 
     <!-- Visibilité de l'application CallRecorder (Android 11+) : réglages, remise des enregistrements, ouverture. -->
     <queries>
-        <package android:name="com.callrecorder.app" />
+        <package android:name="com.lcsgi.callrecorder" />
     </queries>
 
     <application
